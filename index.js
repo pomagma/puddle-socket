@@ -1,53 +1,53 @@
 'use strict';
 
 var Debug = require('debug');
-var Crud = require('puddle-crud');
+var Hub = require('puddle-hub');
 var _ = require('lodash');
 var assert = require('assert');
 
-var server = function (io) {
+exports.server = function (io) {
     assert(io,'No SocketIO instance given');
     var debug = Debug('puddle:hub:server');
-    var crud = new Crud();
+    var hub = new Hub();
     debug('loaded');
 
     var puddleHub = io.of('/puddleHub');
     puddleHub.on('connection', function (socket) {
-        socket.emit('reset', crud.getState(), socket.id);
+        socket.emit('reset', hub.getState(), socket.id);
         ['reset', 'create', 'remove', 'update'].forEach(function (action) {
             socket.on(action, function () {
                 var args = _.toArray(arguments);
                 args.pop();
                 args.push(socket.id);
-                crud[action].apply(crud, args);
+                hub[action].apply(hub, args);
             });
-            crud.on(action, function () {
+            hub.on(action, function () {
                 var args = _.toArray(arguments);
                 args.unshift(action);
                 socket.emit.apply(socket, args);
             }, socket.id);
         });
     });
-    return crud;
+    return hub;
 };
 
 
-var client = function (io) {
+exports.client = function (io) {
     assert(io,'No SocketIO instance given');
 
     var debug = Debug('puddle:hub:client');
 
     var socket = io('/puddleHub');
-    var crud = new Crud();
+    var hub = new Hub();
     var ignoredName = 'socket';
     ['reset', 'create', 'remove', 'update'].forEach(function (action) {
         socket.on(action, function () {
             var args = _.toArray(arguments);
             args.pop();
             args.push(ignoredName);
-            crud[action].apply(crud, args);
+            hub[action].apply(hub, args);
         });
-        crud.on(action, function () {
+        hub.on(action, function () {
             debug('local action called');
             var args = _.toArray(arguments);
             args.unshift(action);
@@ -55,10 +55,5 @@ var client = function (io) {
         }, ignoredName);
     });
 
-    return crud;
-};
-
-module.exports = {
-    server: server,
-    client: client
+    return hub;
 };

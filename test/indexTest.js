@@ -2,24 +2,24 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var rewire = require('rewire');
-var hub = rewire('../hub/hub.js');
+var puddleSocket = rewire('../index.js');
 var Debug = require('debug');
-var debug = Debug('puddle:hubTest');
+var debug = Debug('puddle:socket');
 
 
-describe('puddle-hub', function () {
+describe('puddle-socket', function () {
     describe('module', function () {
         describe('throws if no socketIO object given to', function () {
             it('.client', function () {
-                assert.throws(hub.client);
+                assert.throws(puddleSocket.client);
             });
             it('.server', function () {
-                assert.throws(hub.server);
+                assert.throws(puddleSocket.server);
             });
         });
     });
     describe('clientside:', function () {
-        var clientHub;
+        var clientSocket;
         var ioMock;
         var id = '1';
 
@@ -28,37 +28,37 @@ describe('puddle-hub', function () {
                 on: sinon.spy(),
                 emit: sinon.spy()
             };
-            clientHub = hub.client(function () {
+            clientSocket = puddleSocket.client(function () {
                 return ioMock;
             });
         });
-        describe('hub', function () {
+        describe('socket', function () {
             it('.reset triggers socket.emit(reset)', function () {
                 assert(!ioMock.emit.called);
-                clientHub.reset();
+                clientSocket.reset();
                 assert(ioMock.emit.calledOnce);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.alwaysCalledWith('reset'));
             });
             it('.create triggers socket.emit(create)', function () {
                 assert(!ioMock.emit.called);
-                clientHub.create(id, {});
+                clientSocket.create(id, {});
                 assert(ioMock.emit.calledOnce);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.alwaysCalledWith('create'));
             });
             it('.remove triggers socket.emit(remove)', function () {
                 assert(!ioMock.emit.called);
-                clientHub.create(id, {});
-                clientHub.remove(id);
+                clientSocket.create(id, {});
+                clientSocket.remove(id);
                 assert(ioMock.emit.calledTwice);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.calledWith('remove'));
             });
             it('.update triggers socket.emit(update)', function () {
                 assert(!ioMock.emit.called);
-                clientHub.create(id, {});
-                clientHub.update(id, {});
+                clientSocket.create(id, {});
+                clientSocket.update(id, {});
                 assert(ioMock.emit.calledTwice);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.calledWith('update'));
@@ -68,7 +68,7 @@ describe('puddle-hub', function () {
     });
 
     describe('serverside:', function () {
-        var serverHub;
+        var serverSocket;
         var ioMock;
         var id = '1';
 
@@ -77,7 +77,7 @@ describe('puddle-hub', function () {
                 on: sinon.spy(),
                 emit: sinon.spy()
             };
-            serverHub = hub.server(
+            serverSocket = puddleSocket.server(
                 {
                     of: function () {
                         return {
@@ -97,34 +97,34 @@ describe('puddle-hub', function () {
                 assert(ioMock.emit.alwaysCalledWith('reset'));
             });
         });
-        describe('hub', function () {
+        describe('socket', function () {
 
             it('.reset triggers socket.emit(reset)', function () {
                 assert(ioMock.emit.calledOnce);
-                serverHub.reset();
+                serverSocket.reset();
                 assert(ioMock.emit.calledTwice);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.alwaysCalledWith('reset'));
             });
             it('.create triggers socket.emit(create)', function () {
                 assert(ioMock.emit.calledOnce);
-                serverHub.create(id, {});
+                serverSocket.create(id, {});
                 assert(ioMock.emit.calledTwice);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.calledWith('create'));
             });
             it('.remove triggers socket.emit(remove)', function () {
                 assert(ioMock.emit.calledOnce);
-                serverHub.create(id, {});
-                serverHub.remove(id);
+                serverSocket.create(id, {});
+                serverSocket.remove(id);
                 assert(ioMock.emit.calledThrice);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.calledWith('remove'));
             });
             it('.update triggers socket.emit(update)', function () {
                 assert(ioMock.emit.calledOnce);
-                serverHub.create(id, {});
-                serverHub.update(id, {});
+                serverSocket.create(id, {});
+                serverSocket.update(id, {});
                 assert(ioMock.emit.calledThrice);
                 debug(ioMock.emit.args);
                 assert(ioMock.emit.calledWith('update'));

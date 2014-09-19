@@ -1,11 +1,11 @@
-[![Build Status](https://travis-ci.org/pomagma/puddle-hub.svg?branch=master)](http://travis-ci.org/pomagma/puddle-hub)
-[![NPM Version](https://badge.fury.io/js/puddle-hub.svg)](https://www.npmjs.org/package/puddle-hub)
-[![NPM Dependencies](https://david-dm.org/pomagma/puddle-hub.svg)](https://www.npmjs.org/package/puddle-hub)
-[![Coverage Status](https://img.shields.io/coveralls/pomagma/puddle-hub.svg)](https://coveralls.io/r/pomagma/puddle-hub?branch=master)
+[![Build Status](https://travis-ci.org/pomagma/puddle-socket.svg?branch=master)](http://travis-ci.org/pomagma/puddle-socket)
+[![NPM Version](https://badge.fury.io/js/puddle-socket.svg)](https://www.npmjs.org/package/puddle-socket)
+[![NPM Dependencies](https://david-dm.org/pomagma/puddle-socket.svg)](https://www.npmjs.org/package/puddle-socket)
+[![Coverage Status](https://img.shields.io/coveralls/pomagma/puddle-socket.svg)](https://coveralls.io/r/pomagma/puddle-socket?branch=master)
 
-## Puddle-hub
+## Puddle-socket
 
-Socket.io adapter for puddle-crud to sync data server<=>browser
+Socket.io adapter for puddle-hub to sync data server<=>browser
 
 
 ###Features:    
@@ -20,31 +20,25 @@ Socket.io adapter for puddle-crud to sync data server<=>browser
     
 ###Installation:
     
-    npm install puddle-hub
+    npm install puddle-socket
     npm test        # optional
     
 ###Usage:    
     //on the Server
     var app = require('express')();
     var server = require('http').Server(app);    
-    var hubServer = require(‘puddle-hub’).server(server);
+    var puddleSocket = require(‘puddle-socket’).server(server);
     server.listen(80);
     
     //on the Client
-    var hubClient = require(‘puddle-hub’).client();
-    
-    //returns current state as hash for format see puddle-crud repo.
-    hubClient.on('reset', function(hash) {})
-    
-    hub.create(id,obj)
-    hub.remove(id)
-    hub.update(id,obj)
-        
-    hub.on('create', function(id, obj) {} );
-    hub.on('remove', function(id) {} );
-    hub.on('update', function(id, obj) {} );
+    var puddleSocket = require(‘puddle-socket’).client();
+    puddleSocket.on('reset', function (state) {
+        //this will fire on each client reconnect to socket.IO. 
+        //I.e. on browser start/refresh/connection restore
+    })
 
-    //Each .create, .remove, .update method will emit corresponding event locally.                                      
+From now on any CRUD events/method calls will propagate among server and all it's clients.
+For puddle-socket API see puddle-hub API                                          
 
 ## Contributors
 
